@@ -1,0 +1,241 @@
+OBJETIVO: 
+	Menú Principal del Sistema de Control de Carreras Fórmula 1
+
+ENTORNO:
+	W_OPCION es numerico
+
+CUERPO PRINCIPAL:
+	inicio
+		ejecutar PROCESO_INICIAL
+		mientras W_OPCION <> 0
+			ejecutar PROCESO_PRINCIPAL
+		fin_mientras
+		ejecutar PROCESO_FINAL
+	fin
+
+RUTINAS:
+
+PROCESO_INICIAL:
+	imprimir "**Menú Inicial - Sistema de Control de Carreras Fórmula 1**"
+	ejecutar IMPRIMIR_MENU
+	ejecutar INGRESAR_OPCION
+retorno
+
+PROCESO_PRINCIPAL:
+	evaluar (W_OPCION)
+		caso 1: programa "MANT_PILOTOS"
+		caso 2: programa "MANT_CARRERAS"
+		caso 3: programa "ACTUALIZACION_PUNTOS"
+		caso 4: programa "LISTADO_POS_MARCAS"
+		default: imprimir "No se ha ingresado ninguna opción válida"
+	fin_evaluar
+	ejecutar INGRESAR_OPCION
+retorno
+
+PROCESO_FINAL:
+	imprimir "FIN DEL MENU INICIAL"
+retorno
+
+IMPRIMIR_MENU:
+	imprimir "1. Mantenimiento de Pilotos (A,B,M,C)"
+	imprimir "2. Mantenimiento de Carreras"
+	imprimir "3. Actualización de Puntos"
+	imprimir "4. Tablas de Posiciones por Marca"
+retorno
+
+INGRESAR_OPCION:
+	repetir 
+		ingresar "Ingrese una opción (enter p/fin):", W_OPCION
+	hasta W_OPCION >= 1 or W_OPCION <=5
+retorno
+
+
+-------------------------------------------------------------------------
+*************************************************************************
+-------------------------------------------------------------------------
+
+
+OBJETIVO:
+	Mantenimiento de Pilotos (Alta, Baja, Modificación y Consulta)
+
+ENTORNO:
+	W_COD_PILOTO 			es numerico
+	W_OPCION		  		es numerico
+	W_RESPUESTA 			es numerico
+
+	archivo MARCA
+	registro REG_MARCA
+		COD_MARCA 			es numerico
+		DESCRIPCION			es alfanumerico
+		CARR_GANADAS		es numerico
+		TOTAL_PREMIOS		es numerico
+	fin_registro 
+	prefijo MAR
+
+	archivo CARRERA
+	registro REG_CARRERA
+		NRO_CARRERA			    es numerico
+		COD_PILOTO			    es numerico
+		POSICION 		  	    es numerico
+		VUELTAS_TOTALES		  es numerico
+		VUELTAS_REALIZADAS	es numerico
+		MONTO_PREMIO		    es numerico
+		ACTUALIZADO			    es alfanumerico
+	fin_registro
+	prefijo CAR
+
+	archivo PILOTO
+	registro REG_PILOTO
+		COD_PILOTO			es numerico
+		NOMBRE				  es alfanumerico
+		COD_MARCA			  es numerico
+		CARR_TERMINADAS	es numerico
+		CARR_GANADAS		es numerico
+		PUNTOS 				  es numerico
+	fin_registro
+	prefijo PIL
+
+CUERPO PRINCIPAL:
+	inicio
+		ejecutar PROCESO_INICIAL
+		mientras W_COD_PILOTO <> 0
+			ejecutar PROCESO_PRINCIPAL
+		fin_mientras
+		ejecutar PROCESO_FINAL
+	fin
+
+RUTINAS:
+PROCESO_INICIAL: 
+	imprimir "Mantenimiento de Pilotos"
+	ejecutar ABRIR_ARCHIVOS
+	ejecutar INGRESAR_COD_PILOTO
+retorno
+
+PROCESO_PRINCIPAL: 
+	ejecutar LEER_PILOTO
+	si existe (PILOTO)
+		ejecutar IMPRIMIR_DATOS_PIL
+		ejecutar INGRESAR_OPCION_MANT
+		si W_OPCION = "B"
+			ejecutar BAJA_PILOTO
+		sino
+			si W_OPCION = "M"
+				ejecutar MODIFICAR_PILOTO
+			fin_si
+		fin_si
+	sino
+		ejecutar ALTA_PILOTO
+	fin_si
+	ejecutar INGRESAR_COD_PILOTO	
+retorno
+
+ABRIR_ARCHIVOS:
+	ejecutar ABRIR_MAR
+	ejecutar ABRIR_CAR
+	ejecutar ABRIR_PIL
+retorno
+
+ABRIR_MARCA:
+	abrir MAR
+retorno
+
+ABRIR_CARRERA:
+	abrir CAR
+retorno
+
+ABRIR_PILOTO:
+	abrir PIL
+retorno
+
+INGRESAR_COD_PILOTO:
+	ingresar "Ingrese Cod. Piloto (enter p/fin)", W_COD_PILOTO
+retorno
+
+//******************VERIFICAR SI ESTÁ CORRECTO
+LEER_PILOTO:
+	PIL_COD_PILOTO = W_COD_PILOTO
+	clave PIL_COD_PILOTO
+	leer REG_PILOTO
+retorno
+
+IMPRIMIR_DATOS_PIL:
+	imprimir "Cód. de Piloto: ", PIL_COD_PILOTO
+	imprimir "Nombre del Piloto: ", PIL_NOMBRE
+	imprimir "Cód. de Marca que representa: ", PIL_COD_MARCA
+	imprimir "Carreras que pudo terminar: ", PIL_CARR_TERMINADAS
+	imprimir "Carreras que ganó: ", PIL_CARR_GANADAS
+	imprimir "Puntos: ", PIL_PUNTOS
+retorno
+
+INGRESAR_OPCION_MANT:
+	repetir 
+		ingresar "¿Desea realizar (A)lta, (B)aja, (M)odificación ó (C)onsulta? ", W_OPCION
+	hasta W_OPCION = "A" or "B" or "M"
+retorno 
+
+//******************VERIFICAR SI ESTA CORRECTO
+BAJA_PILOTO:
+	ejecutar UBICAR_PILOTO
+	si CAR_VUELTAS_REALIZADAS > 0
+		imprimir "No se puede dar de baja porque el mismo se encuentra en una carrera"
+	sino
+		ejecutar INGRESAR_CONFIRMACION
+		si W_RESPUESTA = "S"
+			borrar REG_PILOTO
+		fin_si
+	fin_si
+retorno
+
+//**********************VERIFICAR SI ESTÁ CORRECTO
+MODIFICAR_PILOTO:
+	ejecutar LEER_SGTE_PILOTO
+	ejecutar MODIFICAR_DATOS_PIL
+	ejecutar INGRESAR_CONFIRMACION
+	si W_RESPUESTA = "S"
+		regrabar REG_PILOTO
+	fin_si
+retorno
+
+
+//**********************VERIFICAR SI ESTÁ CORRECTO
+ALTA_PILOTO:
+	ejecutar INGRESAR_DATOS_PIL
+	ejecutar INGRESAR_CONFIRMACION
+	si W_RESPUESTA = "S"
+		grabar REG_PILOTO
+	fin_si
+retorno
+
+//********FALTA PROGRAMAR***********
+++++INGRESAR_DATOS_PIL:++++
+++++MODIFICAR_DATOS_PIL:++++
+
+
+INGRESAR_CONFIRMACION:
+	repetir
+		ingresar "¿Está seguro que desea confirmar la operación? "; W_RESPUESTA
+	hasta W_RESPUESTA = "S" or "N"
+retorno
+
+PROCESO_FINAL:
+	ejecutar CERRAR_ARCHIVOS
+	imprimir "**Fin del Proceso**"
+retorno
+
+CERRAR_ARCHIVOS:
+	ejecutar CERRAR_MAR
+	ejecutar CERRAR_CAR
+	ejecutar CERRAR_PIL
+retorno
+
+CERRAR_MARCA:
+	cerrar MAR
+retorno
+
+CERRAR_CARRERA:
+	cerrar CAR
+retorno
+
+CERRAR_PILOTO:
+	cerrar PIL
+retorno
