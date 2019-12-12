@@ -23,11 +23,16 @@ retorno
 
 PROCESO_PRINCIPAL:
 	evaluar (W_OPCION)
-		caso 1: programa "MANT_PILOTOS"
-		caso 2: programa "MANT_CARRERAS"
-		caso 3: programa "ACTUALIZACION_PUNTOS"
-		caso 4: programa "LISTADO_POS_MARCAS"
-		default: imprimir "No se ha ingresado ninguna opción válida"
+		W_OPCION = 1
+			programa "MANT_PILOTOS"
+		W_OPCION = 2
+			programa "MANT_CARRERAS"
+		W_OPCION = 3
+			programa "ACTUALIZACION_PUNTOS"
+		W_OPCION = 4
+			programa "LISTADO_POS_MARCAS"
+		otro
+			imprimir "No se ha ingresado ninguna opción válida"
 	fin_evaluar
 	ejecutar INGRESAR_OPCION
 retorno
@@ -46,7 +51,7 @@ retorno
 INGRESAR_OPCION:
 	repetir 
 		ingresar "Ingrese una opción (enter p/fin):", W_OPCION
-	hasta W_OPCION >= 1 or W_OPCION <=5
+	hasta W_OPCION >= 1 or W_OPCION <= 5
 retorno
 
 
@@ -223,19 +228,19 @@ PROCESO_FINAL:
 retorno
 
 CERRAR_ARCHIVOS:
-	ejecutar CERRAR_MAR
-	ejecutar CERRAR_CAR
-	ejecutar CERRAR_PIL
+	ejecutar CERRAR_MARCA
+	ejecutar CERRAR_CARRERA
+	ejecutar CERRAR_PILOTO
 retorno
 
 CERRAR_MARCA:
-	cerrar MAR
+	cerrar MARCA
 retorno
 
 CERRAR_CARRERA:
-	cerrar CAR
+	cerrar CARRERA
 retorno
 
 CERRAR_PILOTO:
-	cerrar PIL
+	cerrar PILOTO
 retorno
