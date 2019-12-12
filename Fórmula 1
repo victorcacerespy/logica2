@@ -65,13 +65,13 @@ OBJETIVO:
 
 ENTORNO:
 	W_COD_PILOTO 			es numerico
-	W_OPCION		  		es numerico
+	W_OPCION		  	es numerico
 	W_RESPUESTA 			es numerico
 
 	archivo MARCA
 	registro REG_MARCA
-		COD_MARCA 			es numerico
-		DESCRIPCION			es alfanumerico
+		COD_MARCA 		es numerico
+		DESCRIPCION		es alfanumerico
 		CARR_GANADAS		es numerico
 		TOTAL_PREMIOS		es numerico
 	fin_registro 
@@ -79,24 +79,24 @@ ENTORNO:
 
 	archivo CARRERA
 	registro REG_CARRERA
-		NRO_CARRERA			    es numerico
-		COD_PILOTO			    es numerico
-		POSICION 		  	    es numerico
-		VUELTAS_TOTALES		  es numerico
+		NRO_CARRERA		es numerico
+		COD_PILOTO		es numerico
+		POSICION 		es numerico
+		VUELTAS_TOTALES		es numerico
 		VUELTAS_REALIZADAS	es numerico
-		MONTO_PREMIO		    es numerico
-		ACTUALIZADO			    es alfanumerico
+		MONTO_PREMIO		es numerico
+		ACTUALIZADO		es alfanumerico
 	fin_registro
 	prefijo CAR
 
 	archivo PILOTO
 	registro REG_PILOTO
-		COD_PILOTO			es numerico
-		NOMBRE				  es alfanumerico
-		COD_MARCA			  es numerico
-		CARR_TERMINADAS	es numerico
+		COD_PILOTO		es numerico
+		NOMBRE			es alfanumerico
+		COD_MARCA		es numerico
+		CARR_TERMINADAS		es numerico
 		CARR_GANADAS		es numerico
-		PUNTOS 				  es numerico
+		PUNTOS 			es numerico
 	fin_registro
 	prefijo PIL
 
@@ -135,28 +135,27 @@ PROCESO_PRINCIPAL:
 retorno
 
 ABRIR_ARCHIVOS:
-	ejecutar ABRIR_MAR
-	ejecutar ABRIR_CAR
-	ejecutar ABRIR_PIL
+	ejecutar ABRIR_MARCA
+	ejecutar ABRIR_CARRERA
+	ejecutar ABRIR_PILOTO
 retorno
 
 ABRIR_MARCA:
-	abrir MAR
+	abrir MARCA
 retorno
 
 ABRIR_CARRERA:
-	abrir CAR
+	abrir CARRRERA
 retorno
 
 ABRIR_PILOTO:
-	abrir PIL
+	abrir PILOTO
 retorno
 
 INGRESAR_COD_PILOTO:
 	ingresar "Ingrese Cod. Piloto (enter p/fin)", W_COD_PILOTO
 retorno
 
-//******************VERIFICAR SI ESTÁ CORRECTO
 LEER_PILOTO:
 	PIL_COD_PILOTO = W_COD_PILOTO
 	clave PIL_COD_PILOTO
@@ -181,7 +180,7 @@ retorno
 //******************VERIFICAR SI ESTA CORRECTO
 BAJA_PILOTO:
 	ejecutar UBICAR_PILOTO
-	si CAR_VUELTAS_REALIZADAS > 0
+	si CAR_VUELTAfS_REALIZADAS > 0
 		imprimir "No se puede dar de baja porque el mismo se encuentra en una carrera"
 	sino
 		ejecutar INGRESAR_CONFIRMACION
@@ -191,30 +190,50 @@ BAJA_PILOTO:
 	fin_si
 retorno
 
-//**********************VERIFICAR SI ESTÁ CORRECTO
+//******************
+**Permitir modificar el nombre del piloto y en caso de que figure en ninguna carrera,
+**permmitir modificar el cód. marca.
+//******************
 MODIFICAR_PILOTO:
-	ejecutar LEER_SGTE_PILOTO
-	ejecutar MODIFICAR_DATOS_PIL
+	ingresar "Desea Modificar los datos del Piloto? (S/N): ", W_RESPUESTA
+	ejecutar INGRESAR_DATOS_PIL
+	ejecutar LEER_CARRERA
 	ejecutar INGRESAR_CONFIRMACION
 	si W_RESPUESTA = "S"
 		regrabar REG_PILOTO
 	fin_si
-retorno
-
-
-//**********************VERIFICAR SI ESTÁ CORRECTO
-ALTA_PILOTO:
-	ejecutar INGRESAR_DATOS_PIL
-	ejecutar INGRESAR_CONFIRMACION
-	si W_RESPUESTA = "S"
-		grabar REG_PILOTO
 	fin_si
 retorno
 
-//********FALTA PROGRAMAR***********
-++++INGRESAR_DATOS_PIL:++++
-++++MODIFICAR_DATOS_PIL:++++
+ALTA_PILOTO:
+	ingresar "Piloto inexistente, ¿desea agregar uno nuevo? (S/N): ", W_RESPUESTA
+	si W_RESPUESTA = "S"
+		ejecutar INGRESAR_DATOS_PIL
+		ejecutar LEER_MARCA
+		si existe (MARCA)
+			PIL_CARR_TERMINADAS = 0
+			PIL_CARR_GANADAS = 0
+			PIL_PUNTOS = 0
+			ejecutar INGRESAR_CONFIRMACION
+			si W_RESPUESTA = "S"
+				grabar REG_PILOTO
+			fin_si
+		sino 
+			imprimir "El Cód. de Marca no existe en el archivo MARCA"
+		fin_si
+	fin_si
+retorno
 
+INGRESAR_DATOS_PIL:	
+	ingresar "Ingrese Nombre del Piloto: ", PIL_NOMBRE
+	ingresar "Ingrese Cód. de Marca: ", PIL_COD_MARCA
+retorno
+
+LEER_MARCA: 
+	MAR_COD_MARCA = PIL_COD_MARCA
+	clave MAR_COD_MARCA
+	leer REG_MARCA
+retorno
 
 INGRESAR_CONFIRMACION:
 	repetir
